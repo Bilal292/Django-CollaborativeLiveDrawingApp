@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+
+    {% load static %}
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+
+</head>
+<body>
+    <!-- Navbar containing navigation buttons -->
+    <div class="navbar">
+        <div class="nav-buttons">
+            <a href="{% url 'index' %}"><button>HomePage</button></a>
+            <a href="{% url 'login' %}"><button>Login</button></a>
+            
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h2>Register</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Register</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
+</body>
+</html>

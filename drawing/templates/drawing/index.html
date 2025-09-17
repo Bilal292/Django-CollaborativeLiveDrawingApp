@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Live Draw</title>
+
+    <!-- Load static files -->
+    {% load static %}
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+
+    <!-- Inline script to pass Django variables to JavaScript -->
+    <script>
+        window.DjangoVars = {
+            isAuthenticated: {{ user.is_authenticated|lower }},
+            nextClaimTime: '{{ next_claim_time|default:"None" }}',
+            csrfToken: '{{ csrf_token }}',
+            stripePublicKey: '{{ stripe_public_key }}',
+            claimInkUrl: '{% url "claim_ink" %}',
+            checkoutUrl: '{% url "create_checkout_session" %}',
+            userInk: {{ user_ink.ink|default:0 }}
+        };
+    </script>
+</head>
+<body>
+    <!-- Navbar containing user info and navigation buttons -->
+    <div class="navbar">
+        <div class="user-info">
+            <!-- Show user info and draw ink button if the user is authenticated -->
+            {% if user.is_authenticated %}
+                <span>Welcome, {{ user.username }}!</span>
+                <span class="ink-counter">Draw Ink: {{ user_ink.ink }}</span>
+                <button id="claimInkButton" class="claim-button" data-next-claim="{{ next_claim_time }}">Claim Draw Ink</button>
+                <span id="claimCountdown" class="claim-countdown"></span>
+            {% endif %}
+        </div>
+        <div class="toggle-container">
+            <!-- Button to toggle drawing mode on or off -->
+            <button id="toggleDrawing" class="toggle-button drawing-off">Drawing Off</button>
+        </div>
+        <div class="nav-buttons">
+            <!-- Navigation buttons for login, register, buy draw ink or logout based on authentication status -->
+            {% if user.is_authenticated %}
+                <div class="purchase-container">
+                    <button id="buyInkButton">Buy Draw Ink</button>
+                    <div id="inkOptionsDropdown" class="dropdown-content" style="display: none;">
+                        <a href="#" data-option="option_1">£3.99 for 500 draw ink</a>
+                        <a href="#" data-option="option_2">£6.99 for 1200 draw ink</a>
+                        <a href="#" data-option="option_3">£9.99 for 2400 draw ink</a>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}"><button>Logout</button></a>
+            {% else %}
+                <a href="{% url 'login' %}"><button>Login</button></a>
+                <a href="{% url 'register' %}"><button>Register</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main drawing area -->
+    <div class="container">
+        <!-- Color palette for selecting drawing color -->
+        <div class="color-palette">
+            <!-- Color options for drawing -->
+            <div class="color-box" style="background-color: black;" data-color="black"></div>
+            <div class="color-box" style="background-color: white;" data-color="white"></div>
+            <div class="color-box" style="background-color: red;" data-color="red"></div>
+            <div class="color-box" style="background-color: green;" data-color="green"></div>
+            <div class="color-box" style="background-color: yellow;" data-color="yellow"></div>
+            <div class="color-box" style="background-color: orange;" data-color="orange"></div>
+            <div class="color-box" style="background-color: blue;" data-color="blue"></div>
+            <div class="color-box" style="background-color: pink;" data-color="pink"></div>
+            <div class="color-box" style="background-color: purple;" data-color="purple"></div>
+            <div class="color-box" style="background-color: brown;" data-color="brown"></div>
+        </div>
+        <!-- Canvas for drawing -->
+        <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <!-- Stripe.js library -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- External JavaScript files -->
+    {% if user.is_authenticated %}
+        <script src="{% static 'js/drawing.js' %}"></script>
+        <script src="{% static 'js/stripe.js' %}"></script>
+        <script src="{% static 'js/pageReload.js' %}"></script>
+    {% else %}
+        <script src="{% static 'js/drawing.js' %}"></script>  <!-- This should still be loaded -->
+    {% endif %}
+    
+
+</body>
+</html>
